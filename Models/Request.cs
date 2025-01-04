@@ -54,7 +54,7 @@ namespace VollandAPI
         public string? kind { get; set; }
         public string[]? expirations { get; set; }
 
-        public Exposure_Request(string ticker, Greek greek, Kind kind, List<DateTime>? expirations = null) : base("exposure_request", ticker)
+        public Exposure_Request(string ticker, Kind kind, Greek greek, List<DateTime>? expirations = null) : base("exposure_request", ticker)
         {
             this.greek = Enum.GetName(greek) ?? throw new ArgumentNullException(nameof(greek));
             this.kind = Enum.GetName(kind) ?? throw new ArgumentNullException(nameof(kind));

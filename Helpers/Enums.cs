@@ -8,10 +8,11 @@ namespace VollandAPI
 {
     public enum Request_Type
     {
-        exposure_request = 0,
-        trend_request = 1,
-        paradigm_request = 2,
-        zerodte_request = 3
+        None = 0,
+        exposure_request = 1,
+        trend_request = 2,
+        paradigm_request = 3,
+        zerodte_request = 4
     }
 
     public enum Greek
@@ -27,7 +28,14 @@ namespace VollandAPI
     public enum Kind
     {
         put = -1,
-        both = 0,        
+        both = 0,
         call = 1
+    }
+
+    public enum Paradigm
+    {
+        None = 0,
+        GEX_Pure = 1,
+        GEX_Target = 2
     }
 }
