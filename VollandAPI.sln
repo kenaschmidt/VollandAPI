@@ -3,7 +3,9 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 17
 VisualStudioVersion = 17.9.34723.18
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "VollandAPI", "VollandAPI.csproj", "{C58ED670-16C0-4C49-979E-7A4C89BC28E4}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "VollandAPI", "VollandAPI.csproj", "{C58ED670-16C0-4C49-979E-7A4C89BC28E4}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "VollandAPITests", "..\VollandAPITests\VollandAPITests.csproj", "{05A4E769-54BC-4CB7-A7FD-49E05EE5B1A5}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -15,6 +17,10 @@ Global
 		{C58ED670-16C0-4C49-979E-7A4C89BC28E4}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{C58ED670-16C0-4C49-979E-7A4C89BC28E4}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{C58ED670-16C0-4C49-979E-7A4C89BC28E4}.Release|Any CPU.Build.0 = Release|Any CPU
+		{05A4E769-54BC-4CB7-A7FD-49E05EE5B1A5}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{05A4E769-54BC-4CB7-A7FD-49E05EE5B1A5}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{05A4E769-54BC-4CB7-A7FD-49E05EE5B1A5}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{05A4E769-54BC-4CB7-A7FD-49E05EE5B1A5}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

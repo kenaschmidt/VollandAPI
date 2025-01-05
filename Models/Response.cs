@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using System.Text.Json.Nodes;
 using System.Text.Json.Serialization;
 using System.Threading.Tasks;
 
@@ -11,6 +12,11 @@ namespace VollandAPI
     //
     // RESPONSES
     //
+
+    public class Response_Group
+    {
+        public Response[]? responses;
+    }
 
     public class Response
     {
@@ -48,14 +54,17 @@ namespace VollandAPI
 
     public abstract class Data
     {
-        public string? lastModified { get; set; }
+        public virtual string? lastModified { get; set; }
     }
 
     public class Paradigm_Data : Data
     {
         public string? paradigm { get; set; }
         public double? target { get; set; }
-        public double? lis { get; set; }
+        public double[]? lis { get; set; }
+
+        [JsonPropertyName("last-modified")]
+        public override string? lastModified { get; set; }
     }
 
     public class ZeroDTE_Data : Data
@@ -69,7 +78,7 @@ namespace VollandAPI
     public class Exposure_Data : Data
     {
         public string[]? strikes { get; set; }
-        public string[]? exposures { get; set; }
+        public double[]? exposures { get; set; }
         public double? currentPrice { get; set; }
     }
 

@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
+using System.Runtime.CompilerServices;
 using System.Text;
 using System.Text.Json;
 using System.Threading.Tasks;
@@ -37,7 +38,7 @@ namespace VollandAPI.Helpers
                 for (int i = 0; i < me.strikes.Length; i++)
                 {
                     var strike = double.Parse(me.strikes[i]);
-                    var exposure = double.Parse(me.exposures[i]);
+                    var exposure = me.exposures[i];
 
                     ret.Add(new Exposure_Point(strike, exposure));
                 }
@@ -51,6 +52,11 @@ namespace VollandAPI.Helpers
         internal static string ToJsonString<T>(this T me)
         {
             return JsonSerializer.Serialize(me);
+        }
+
+        internal static Request_Package<TRequest> Package<TRequest>(this TRequest me) where TRequest : Request
+        {
+            return new Request_Package<TRequest>(me);
         }
 
         #region Response to Result converters

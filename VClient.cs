@@ -1,6 +1,8 @@
-﻿using System.Net.Http.Headers;
+﻿using System.Diagnostics;
+using System.Net.Http.Headers;
 using System.Reflection;
 using System.Text.Json;
+using System.Text.Json.Nodes;
 using System.Text.Json.Serialization;
 using System.Windows.Markup;
 using VollandAPI.Helpers;
@@ -11,6 +13,8 @@ namespace VollandAPI
     {
 
         private HttpClient? httpClient { get; set; }
+
+        private Uri BaseAddress { get; } = new Uri(@"https://prod-api.vol.land/api/v1/volland");
 
         private readonly string API_Key;
 
@@ -35,14 +39,14 @@ namespace VollandAPI
         /// Initializes as new instance of the Volland API Client.
         /// </summary>
         /// <param name="apiKey">Volland API Key</param>
-        /// <param name="tokenRemaining">Number of tokens remaining.  Does not update value if another client has already been initialized.</param>
-        public VClient(string apiKey, int tokenRemaining)
+        /// <param name="tokensRemaining">Number of tokens remaining.  Does not update value if another client has already been initialized.</param>
+        public VClient(string apiKey, int tokensRemaining)
         {
             this.API_Key = apiKey;
 
             if (_tokensRemaining == null)
             {
-                TokensRemaining = tokenRemaining;
+                TokensRemaining = tokensRemaining;
             }
 
             _initHHPClient();
@@ -54,8 +58,9 @@ namespace VollandAPI
         private void _initHHPClient()
         {
             httpClient = new HttpClient();
-            httpClient.BaseAddress = new Uri(@"https://prod-api.vol.land/api/v1/volland");
-            httpClient.DefaultRequestHeaders.Add("Authorization", $"X-API-KEY: {API_Key}");
+            httpClient.DefaultRequestHeaders.Add("X-API-KEY", $"{API_Key}");
+            httpClient.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue("application/json"));
+
             httpClient.Timeout = Timeout.InfiniteTimeSpan;
         }
 
@@ -72,34 +77,67 @@ namespace VollandAPI
 
         #region Request Handling
 
-        private async Task<TResult?> SendRequestAsync<TResult>(string request) where TResult : class
+        private async Task<TResult?> SendRequestAsync<TRequest, TResult>(Request_Package<TRequest> requestPackage) where TResult : Result where TRequest : Request
         {
             if (httpClient == null)
                 throw new NullReferenceException("ERROR: HTTP Client failed to initialize");
 
+            if (requestPackage == null)
+                throw new ArgumentException(nameof(requestPackage));
+
             try
             {
-                TokensRemaining -= 1;
+                // Serialize the request from the package
 
-                HttpResponseMessage httpResponse = await httpClient.GetAsync(request);
+                string request = JsonSerializer.Serialize(requestPackage);
+                var content = new StringContent(request, System.Text.Encoding.UTF8, "application/json");
+
+                //
+                //  TRANSMIT REQUEST -- TOKEN CHARGED HERE
+                //
+
+                if (TokensRemaining <= 0)
+                    throw new Exception("System ERROR: No API tokens remain");
+                else
+                    TokensRemaining -= 1;
+
+                HttpResponseMessage httpResponse = await httpClient.PostAsync(BaseAddress, content);
+
+                //
+                // ---------------------------------------
+                //
 
                 if (httpResponse.IsSuccessStatusCode)
                 {
-                    // Read the response and process the JSON
+                    // Read the replay as a string
                     string replyString = await httpResponse.Content.ReadAsStringAsync();
 
-                    Request_Type requestType = (JsonSerializer.Deserialize<Result>(replyString))?.RequestType ?? Request_Type.None;
+                    // Convert the reply string to an array of JSON objects
+                    JsonArray? responseGroup = JsonSerializer.Deserialize<JsonArray>(replyString);
 
+                    if (responseGroup == null)
+                        throw new NullReferenceException("Response group was null after deserializing");
+
+                    // Convert the single response to a local Response object (since we only have one request at a time)
+                    Response? response = JsonSerializer.Deserialize<Response>(responseGroup?.SingleOrDefault());
+
+                    if (response == null || response.request_type == null)
+                        throw new NullReferenceException("Response was null after deserializing");
+
+                    // Get the request type from the Response object
+                    Request_Type requestType = Enum.Parse<Request_Type>(response.request_type);
+
+                    // Process the response based on the request type
                     switch (requestType)
                     {
                         case Request_Type.exposure_request:
-                            return ProcessResponse<Exposure_Response, Exposure_Result>(replyString) as TResult;
+                            return ProcessResponse<Exposure_Response, Exposure_Result>(responseGroup?.SingleOrDefault().Deserialize<Exposure_Response>()) as TResult;
                         case Request_Type.trend_request:
-                            return ProcessResponse<Trend_Response, Trend_Result>(replyString) as TResult;
+                            return ProcessResponse<Trend_Response, Trend_Result>(responseGroup?.SingleOrDefault().Deserialize<Trend_Response>()) as TResult;
                         case Request_Type.paradigm_request:
-                            return ProcessResponse<Paradigm_Response, Paradigm_Result>(replyString) as TResult;
+                            return ProcessResponse<Paradigm_Response, Paradigm_Result>(responseGroup?.SingleOrDefault().Deserialize<Paradigm_Response>()) as TResult;
                         case Request_Type.zerodte_request:
-                            return ProcessResponse<ZeroDTE_Response, ZeroDTE_Result>(replyString) as TResult;
+                            return ProcessResponse<ZeroDTE_Response, ZeroDTE_Result>(responseGroup?.SingleOrDefault().Deserialize<ZeroDTE_Response>()) as TResult;
                         default:
                             throw new Exception("System ERROR: Invalid request type returned");
                     }
@@ -107,20 +145,20 @@ namespace VollandAPI
                 }
                 else if (httpResponse.StatusCode == System.Net.HttpStatusCode.Unauthorized)
                 {
-                    throw new Exception($"API ERROR 401: Missing or invalid API key, no Live subscription");
+                    throw new HttpRequestException($"API ERROR 401: Missing or invalid API key, no Live subscription");
                 }
                 else if (httpResponse.StatusCode == System.Net.HttpStatusCode.BadRequest)
                 {
-                    throw new Exception($"API ERROR 400: Request JSON is not in correct format.");
+                    throw new HttpRequestException($"API ERROR 400: Request JSON is not in correct format.");
                 }
                 else if (httpResponse.StatusCode == System.Net.HttpStatusCode.TooManyRequests)
                 {
                     UpdateTokensRemaining(0);
-                    throw new Exception($"API ERROR 429: You don't have any API credits left.");
+                    throw new HttpRequestException($"API ERROR 429: You don't have any API credits left.");
                 }
                 else
                 {
-                    throw new Exception($"System ERROR: HTTP Client request returned as unsuccessful: {httpResponse.ReasonPhrase}: {request}");
+                    throw new HttpRequestException($"System ERROR: HTTP Client request returned as unsuccessful: {httpResponse.ReasonPhrase}: {request}");
                 }
 
             }
@@ -131,19 +169,14 @@ namespace VollandAPI
 
         }
 
-        private TResult ProcessResponse<TResponse, TResult>(string? httpReplyString) where TResponse : Response where TResult : Result
+        private TResult ProcessResponse<TResponse, TResult>(TResponse? response) where TResponse : Response where TResult : Result
         {
-            if (httpReplyString == null) throw new Exception("System ERROR: Null response object");
-
             try
             {
-                TResponse? response = JsonSerializer.Deserialize<TResponse>(httpReplyString);
-
                 if (response == null)
                     throw new NullReferenceException("System ERROR: Response conversion resulted in null value");
 
                 return response.ToResult<TResult>();
-
             }
             catch (JsonException)
             {
@@ -159,28 +192,48 @@ namespace VollandAPI
 
         #region Public Request Methods
 
-        public async Task<Exposure_Result?> RequestExposureAsync(string ticker, Kind kind, Greek greek, List<DateTime> expirations)
+        /// <summary>
+        /// This request retrieves dealer exposure data for the given ticker and greek.
+        /// </summary>
+        /// <param name="ticker">Ticker</param>
+        /// <param name="kind">Put, Call, or Both</param>
+        /// <param name="greek">Delta, Gamma, etc.</param>
+        /// <param name="expirations">List of valid expirations or null to retrieve all.</param>
+        /// <returns>A single result object containing the data requested.  Note that multiple expiration requests return the combined data, not individual expirations.</returns>
+        public async Task<Exposure_Result?> RequestExposureAsync(string ticker, Kind kind, Greek greek, List<DateTime>? expirations = null)
         {
             var request = new Exposure_Request(ticker, kind, greek, expirations);
-            return await SendRequestAsync<Exposure_Result>(request.ToJsonString());
+
+            var requestPackage = request.Package();
+
+            return await SendRequestAsync<Exposure_Request, Exposure_Result>(requestPackage);
         }
 
         public async Task<Trend_Result?> RequestTrendAsync(string ticker, Greek greek)
         {
             var request = new Trend_Request(ticker, greek);
-            return await SendRequestAsync<Trend_Result>(request.ToJsonString());
+
+            var requestPackage = request.Package();
+
+            return await SendRequestAsync<Trend_Request, Trend_Result>(requestPackage);
         }
 
         public async Task<ZeroDTE_Result?> RequestZeroDTEAsync(string ticker)
         {
             var request = new ZeroDTE_Request(ticker);
-            return await SendRequestAsync<ZeroDTE_Result>(request.ToJsonString());
+
+            var requestPackage = request.Package();
+
+            return await SendRequestAsync<ZeroDTE_Request, ZeroDTE_Result>(requestPackage);
         }
 
         public async Task<Paradigm_Result?> RequestParadigmAsync(string ticker)
         {
             var request = new Paradigm_Request(ticker);
-            return await SendRequestAsync<Paradigm_Result>(request.ToJsonString());
+
+            var requestPackage = request.Package();
+
+            return await SendRequestAsync<Paradigm_Request, Paradigm_Result>(requestPackage);
         }
 
         #endregion

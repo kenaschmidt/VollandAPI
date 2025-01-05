@@ -59,17 +59,20 @@ namespace VollandAPI
 
     public class Paradigm_Result : Result
     {
-        public Paradigm Paradigm { get; set; }
+        //public Paradigm Paradigm { get; set; }
+        public string Paradigm { get; set; }
         public double? Target { get; set; }
-        public double? LIS { get; set; }
+        public double[]? LIS { get; set; }
         public DateTime LastUpdated { get; set; }
 
-        public Paradigm_Result(string ticker, string paradigm, double? target, double? LIS, string lastUpdated)
+        public Paradigm_Result(string ticker, string paradigm, double? target, double[]? lis, string lastUpdated)
             : base(Request_Type.paradigm_request, ticker)
         {
-            Paradigm = Enum.Parse<Paradigm>(paradigm);
+            //Paradigm = Enum.Parse<Paradigm>(paradigm);
+            Paradigm = paradigm;
+
             Target = target;
-            this.LIS = LIS;
+            this.LIS = lis;
             LastUpdated = DateTime.ParseExact(lastUpdated, "yyyy-MM-dd HH:mm:ss", null);
         }
     }

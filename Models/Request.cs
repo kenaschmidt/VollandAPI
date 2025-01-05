@@ -67,4 +67,17 @@ namespace VollandAPI
 
     }
 
+    /// <summary>
+    /// Packaging class required to send a request, as the API accepts an array only.
+    /// </summary>
+    /// <typeparam name="TRequest"></typeparam>
+    public class Request_Package<TRequest> where TRequest : class
+    {
+        public TRequest[] requests { get; set; }
+
+        public Request_Package(TRequest request)
+        {
+            requests = new TRequest[] { request };
+        }
+    }
 }

@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.ComponentModel;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -35,7 +36,11 @@ namespace VollandAPI
     public enum Paradigm
     {
         None = 0,
+        [Description("GEX-PURE")]
         GEX_Pure = 1,
-        GEX_Target = 2
+        [Description("GEX-TARGET")]
+        GEX_Target = 2,
+        [Description("SIDIAL-MESSY")]
+        SIDIAL_Messy = 3
     }
 }
