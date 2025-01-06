@@ -61,7 +61,7 @@ namespace VollandAPI
             httpClient.DefaultRequestHeaders.Add("X-API-KEY", $"{API_Key}");
             httpClient.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue("application/json"));
 
-            httpClient.Timeout = Timeout.InfiniteTimeSpan;
+            httpClient.Timeout = new TimeSpan(0, 0, 5);
         }
 
         /// <summary>
@@ -156,6 +156,10 @@ namespace VollandAPI
                     UpdateTokensRemaining(0);
                     throw new HttpRequestException($"API ERROR 429: You don't have any API credits left.");
                 }
+                else if (httpResponse.StatusCode == System.Net.HttpStatusCode.RequestTimeout)
+                {
+                    throw new TimeoutException("ERROR Request timeout.");
+                }
                 else
                 {
                     throw new HttpRequestException($"System ERROR: HTTP Client request returned as unsuccessful: {httpResponse.ReasonPhrase}: {request}");
@@ -211,6 +215,10 @@ namespace VollandAPI
 
         public async Task<Trend_Result?> RequestTrendAsync(string ticker, Greek greek)
         {
+
+            // Don't use until server fixes return values
+            throw new NotImplementedException();
+
             var request = new Trend_Request(ticker, greek);
 
             var requestPackage = request.Package();
