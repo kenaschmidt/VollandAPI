@@ -215,10 +215,6 @@ namespace VollandAPI
 
         public async Task<Trend_Result?> RequestTrendAsync(string ticker, Greek greek)
         {
-
-            // Don't use until server fixes return values
-            throw new NotImplementedException();
-
             var request = new Trend_Request(ticker, greek);
 
             var requestPackage = request.Package();

@@ -1,10 +1,15 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.ComponentModel;
 using System.Diagnostics;
+using System.Formats.Asn1;
 using System.Linq;
+using System.Reflection;
 using System.Runtime.CompilerServices;
 using System.Text;
 using System.Text.Json;
+using System.Text.Json.Nodes;
+using System.Text.Json.Serialization;
 using System.Threading.Tasks;
 
 namespace VollandAPI.Helpers
@@ -58,6 +63,42 @@ namespace VollandAPI.Helpers
         {
             return new Request_Package<TRequest>(me);
         }
+
+        /// <summary>
+        /// Converts a string to the enum with matching description tag
+        /// </summary>
+        /// <typeparam name="TEnum"></typeparam>
+        /// <param name="me"></param>
+        internal static TEnum ToEnumByDescription<TEnum>(this string me) where TEnum : Enum
+        {
+            TEnum? ret = Enum.GetValues(typeof(TEnum)).Cast<TEnum>().FirstOrDefault(x => x.GetDescription() == me);
+
+            if (ret == null)
+                return (TEnum)Activator.CreateInstance(typeof(TEnum));
+            else return ret;
+        }
+
+        internal static string? GetDescription(this Enum value)
+        {
+            Type type = value.GetType();
+            string? name = Enum.GetName(type, value);
+            if (name != null)
+            {
+                FieldInfo? field = type.GetField(name);
+                if (field != null)
+                {
+                    DescriptionAttribute? attr =
+                           Attribute.GetCustomAttribute(field,
+                             typeof(DescriptionAttribute)) as DescriptionAttribute;
+                    if (attr != null)
+                    {
+                        return attr.Description;
+                    }
+                }
+            }
+            return null;
+        }
+
 
         #region Response to Result converters
 
@@ -140,4 +181,5 @@ namespace VollandAPI.Helpers
         #endregion
 
     }
+
 }

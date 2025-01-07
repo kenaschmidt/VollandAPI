@@ -1,7 +1,9 @@
 ﻿using System;
+using System.Buffers.Text;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using System.Text.Json;
 using System.Text.Json.Nodes;
 using System.Text.Json.Serialization;
 using System.Threading.Tasks;
@@ -61,9 +63,9 @@ namespace VollandAPI
     {
         public string? paradigm { get; set; }
         public double? target { get; set; }
-        public double[]? lis { get; set; }
 
-        [JsonPropertyName("last-modified")]
+        [JsonConverter(typeof(DoubleToArrayConverter))]
+        public double[]? lis { get; set; }
         public override string? lastModified { get; set; }
     }
 
@@ -78,6 +80,8 @@ namespace VollandAPI
     public class Exposure_Data : Data
     {
         public string[]? strikes { get; set; }
+
+        [JsonConverter(typeof(DoubleToArrayConverter))]
         public double[]? exposures { get; set; }
         public double? currentPrice { get; set; }
     }
@@ -92,5 +96,39 @@ namespace VollandAPI
         public string? x { get; set; }
         public double? y { get; set; }
     }
+
+    public class DoubleToArrayConverter : JsonConverter<double[]>
+    {
+        public override double[] Read(ref Utf8JsonReader reader, Type type, JsonSerializerOptions options)
+        {
+            if (reader.TokenType == JsonTokenType.Number)
+            {
+                return new double[] { reader.GetDouble() };
+            }
+            else if (reader.TokenType == JsonTokenType.StartArray) 
+            {
+                List<double> ret = new List<double>();
+
+                reader.Read();
+                while (reader.TokenType == JsonTokenType.Number)
+                {
+                    ret.Add(reader.GetDouble());
+
+                    reader.Read();
+                }
+
+                return ret.ToArray();
+            }
+
+            return new double[] { reader.GetDouble() };
+
+        }
+
+        public override void Write(Utf8JsonWriter writer, double[] value, JsonSerializerOptions options)
+        {
+            throw new NotImplementedException();
+        }
+    }
+
 
 }

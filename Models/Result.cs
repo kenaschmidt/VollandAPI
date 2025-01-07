@@ -22,10 +22,11 @@ namespace VollandAPI
 
     public class Trend_Result : Result
     {
+
         public Greek Greek { get; set; }
         public List<Trend_Point> TrendPoints { get; set; }
 
-        public DateTime LastModified { get; set; }
+        public DateTime LastModifiedUTC { get; set; }
 
         public Trend_Result(string ticker, string greek, Trend_Data? trendData)
             : base(Request_Type.trend_request, ticker)
@@ -41,7 +42,7 @@ namespace VollandAPI
                 TrendPoints.Add(item.ToTrendPoint());
 
             if (trendData.lastModified != null)
-                LastModified = DateTime.ParseExact(trendData.lastModified, "yyyy-MM-dd HH:mm:ss", null);
+                LastModifiedUTC = DateTime.ParseExact(trendData.lastModified, "yyyy-MM-dd HH:mm:ss", null);
         }
     }
 
@@ -60,20 +61,20 @@ namespace VollandAPI
     public class Paradigm_Result : Result
     {
         //public Paradigm Paradigm { get; set; }
-        public string Paradigm { get; set; }
+        public Paradigm Paradigm { get; set; }
         public double? Target { get; set; }
         public double[]? LIS { get; set; }
-        public DateTime LastUpdated { get; set; }
+        public DateTime LastUpdatedUTC { get; set; }
 
         public Paradigm_Result(string ticker, string paradigm, double? target, double[]? lis, string lastUpdated)
             : base(Request_Type.paradigm_request, ticker)
         {
             //Paradigm = Enum.Parse<Paradigm>(paradigm);
-            Paradigm = paradigm;
+            Paradigm = paradigm.ToEnumByDescription<Paradigm>();
 
             Target = target;
             this.LIS = lis;
-            LastUpdated = DateTime.ParseExact(lastUpdated, "yyyy-MM-dd HH:mm:ss", null);
+            LastUpdatedUTC = DateTime.ParseExact(lastUpdated, "yyyy-MM-dd HH:mm:ss", null);
         }
     }
 
@@ -98,7 +99,7 @@ namespace VollandAPI
         public Kind Kind { get; set; }
         public double SpotPrice { get; set; }
 
-        public DateTime LastUpdated { get; set; }
+        public DateTime LastUpdatedUTC { get; set; }
 
         public List<DateTime> Expirations { get; set; } = new List<DateTime>();
 
@@ -121,7 +122,7 @@ namespace VollandAPI
             SpotPrice = currentPrice;
 
             if (exposures.lastModified != null)
-                LastUpdated = DateTime.ParseExact(exposures.lastModified, "yyyy-MM-dd HH:mm:ss", null);
+                LastUpdatedUTC = DateTime.ParseExact(exposures.lastModified, "yyyy-MM-dd HH:mm:ss", null);
         }
     }
 
