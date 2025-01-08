@@ -69,12 +69,12 @@ namespace VollandAPI.Helpers
         /// </summary>
         /// <typeparam name="TEnum"></typeparam>
         /// <param name="me"></param>
-        internal static TEnum ToEnumByDescription<TEnum>(this string me) where TEnum : Enum
+        internal static TEnum? ToEnumByDescription<TEnum>(this string me) where TEnum : Enum
         {
             TEnum? ret = Enum.GetValues(typeof(TEnum)).Cast<TEnum>().FirstOrDefault(x => x.GetDescription() == me);
 
             if (ret == null)
-                return (TEnum)Activator.CreateInstance(typeof(TEnum));
+                return (TEnum?)Activator.CreateInstance(typeof(TEnum));
             else return ret;
         }
 

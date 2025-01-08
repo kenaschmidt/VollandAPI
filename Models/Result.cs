@@ -103,7 +103,7 @@ namespace VollandAPI
 
         public List<DateTime> Expirations { get; set; } = new List<DateTime>();
 
-        public List<Exposure_Point> Exposures { get; set; }
+        public List<Exposure_Point> Exposures { get; set; } = new List<Exposure_Point>();
 
         public Exposure_Result(string ticker, string greek, string kind, string[] expirations, Exposure_Data exposures, double currentPrice) : base(Request_Type.exposure_request, ticker)
         {
@@ -123,6 +123,10 @@ namespace VollandAPI
 
             if (exposures.lastModified != null)
                 LastUpdatedUTC = DateTime.ParseExact(exposures.lastModified, "yyyy-MM-dd HH:mm:ss", null);
+        }
+
+        public Exposure_Result(string ticker): base(Request_Type.exposure_request, ticker)
+        {
         }
     }
 

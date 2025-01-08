@@ -5,7 +5,13 @@ VisualStudioVersion = 17.9.34723.18
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "VollandAPI", "VollandAPI.csproj", "{C58ED670-16C0-4C49-979E-7A4C89BC28E4}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "VollandAPITests", "..\VollandAPITests\VollandAPITests.csproj", "{05A4E769-54BC-4CB7-A7FD-49E05EE5B1A5}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "VollandAPITests", "..\VollandAPITests\VollandAPITests.csproj", "{05A4E769-54BC-4CB7-A7FD-49E05EE5B1A5}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "VollandDB", "..\VollandDB\VollandDB.csproj", "{E3492869-C502-4AC1-A5FF-5B0B711A6A74}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "VollandDBTests", "..\VollandDBTests\VollandDBTests.csproj", "{2512B17F-D98C-4845-A1AF-05C0E3712BF2}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "VollandDataManager", "..\VollandDataManager\VollandDataManager.csproj", "{6CFDF8BD-0EA7-4918-8585-521BFAA45622}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -21,6 +27,18 @@ Global
 		{05A4E769-54BC-4CB7-A7FD-49E05EE5B1A5}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{05A4E769-54BC-4CB7-A7FD-49E05EE5B1A5}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{05A4E769-54BC-4CB7-A7FD-49E05EE5B1A5}.Release|Any CPU.Build.0 = Release|Any CPU
+		{E3492869-C502-4AC1-A5FF-5B0B711A6A74}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{E3492869-C502-4AC1-A5FF-5B0B711A6A74}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{E3492869-C502-4AC1-A5FF-5B0B711A6A74}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{E3492869-C502-4AC1-A5FF-5B0B711A6A74}.Release|Any CPU.Build.0 = Release|Any CPU
+		{2512B17F-D98C-4845-A1AF-05C0E3712BF2}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{2512B17F-D98C-4845-A1AF-05C0E3712BF2}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{2512B17F-D98C-4845-A1AF-05C0E3712BF2}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{2512B17F-D98C-4845-A1AF-05C0E3712BF2}.Release|Any CPU.Build.0 = Release|Any CPU
+		{6CFDF8BD-0EA7-4918-8585-521BFAA45622}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{6CFDF8BD-0EA7-4918-8585-521BFAA45622}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{6CFDF8BD-0EA7-4918-8585-521BFAA45622}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{6CFDF8BD-0EA7-4918-8585-521BFAA45622}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

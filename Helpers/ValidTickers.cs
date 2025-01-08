@@ -6,12 +6,13 @@ using System.Threading.Tasks;
 
 namespace VollandAPI
 {
-    internal static class ValidTickers
+    public static class ValidTickers
     {
-        internal static bool ValidateTicker(string ticker)
+        public static bool ValidateTicker(string ticker)
         {
             return validTickers.Contains(ticker.ToUpper());
         }
+        public static List<string> AllTickers => validTickers;
 
         internal static List<string> validTickers = new List<string>()
         {
