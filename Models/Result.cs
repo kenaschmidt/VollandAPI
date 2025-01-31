@@ -125,8 +125,85 @@ namespace VollandAPI
                 LastUpdatedUTC = DateTime.ParseExact(exposures.lastModified, "yyyy-MM-dd HH:mm:ss", null);
         }
 
-        public Exposure_Result(string ticker): base(Request_Type.exposure_request, ticker)
+        public Exposure_Result(string ticker) : base(Request_Type.exposure_request, ticker)
         {
+        }
+
+        public static Exposure_Result TestData(double minStrike, double maxStrike, double step, double maxExposure)
+        {
+
+            var ret = new Exposure_Result("TEST");
+            ret.Greek = Greek.delta;
+            ret.Kind = Kind.both;
+            ret.SpotPrice = 456.50;
+            ret.LastUpdatedUTC = DateTime.UtcNow;
+            ret.Expirations = new List<DateTime>(new DateTime[] {
+            DateTime.Today,
+            DateTime.Today.AddDays(1)
+            });
+
+
+            Random rnd = new Random();
+            for (double s = minStrike; s <= maxStrike; s += step)
+            {
+                int sign = rnd.Next(0, 2) == 0 ? 1 : -1;
+                ret.Exposures.Add(new Exposure_Point(s, rnd.NextDouble() * rnd.NextDouble() * maxExposure * sign));
+            }
+
+            return ret;
+        }
+
+        /// <summary>
+        /// Adds strike/exposure values to the current item and returns a new object
+        /// </summary>
+        /// <param name="other"></param>
+        /// <returns></returns>
+        public Exposure_Result Add(Exposure_Result other)
+        {
+            var ret = new Exposure_Result(this.Ticker)
+            {
+                Greek = this.Greek,
+                Kind = this.Kind,
+                SpotPrice = this.SpotPrice,
+                LastUpdatedUTC = this.LastUpdatedUTC,
+                Expirations = this.Expirations.Union(other.Expirations).ToList(),
+            };
+
+            var strikes = this.Exposures.Select(x => x.Strike).Union(other.Exposures.Select(x => x.Strike));
+
+            foreach (var strike in strikes)
+            {
+                ret.Exposures.Add(new Exposure_Point(
+                    strike,
+                    (this.Exposures.Find(x => x.Strike == strike)?.Exposure ?? 0) + (other.Exposures.Find(x => x.Strike == strike)?.Exposure ?? 0)));
+            }
+
+            return ret;
+        }
+
+        /// <summary>
+        /// Returns a new copy of the object
+        /// </summary>
+        /// <returns></returns>
+        public Exposure_Result Copy()
+        {
+            var ret = new Exposure_Result(this.Ticker);
+            ret.Greek = this.Greek;
+            ret.Kind = this.Kind;
+            ret.SpotPrice = this.SpotPrice;
+            ret.LastUpdatedUTC = this.LastUpdatedUTC;
+            ret.Expirations = new List<DateTime>(this.Expirations);
+            foreach (var e in this.Exposures)
+                ret.Exposures.Add(new Exposure_Point(e.Strike, e.Exposure));
+
+            return ret;
+        }
+
+        public override string ToString()
+        {
+            string exp = Expirations.Count == 0 ? "All Expiries" : (Expirations.DateRangeString() ?? "ERR");
+
+            return $"{Ticker} {Kind.ToString()} {Greek.ToString()} Exp {exp}";
         }
     }
 
@@ -139,6 +216,16 @@ namespace VollandAPI
         {
             Strike = strike;
             Exposure = exposure;
+        }
+
+        public static Exposure_Point Add(Exposure_Point first, Exposure_Point second)
+        {
+            if (first.Strike != second.Strike)
+            {
+                throw new Exception();
+            }
+
+            return new Exposure_Point(first.Strike, (first.Exposure + second.Exposure));
         }
     }
 }

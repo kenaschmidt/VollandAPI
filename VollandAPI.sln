@@ -7,11 +7,15 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "VollandAPI", "VollandAPI.cs
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "VollandAPITests", "..\VollandAPITests\VollandAPITests.csproj", "{05A4E769-54BC-4CB7-A7FD-49E05EE5B1A5}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "VollandDB", "..\VollandDB\VollandDB.csproj", "{E3492869-C502-4AC1-A5FF-5B0B711A6A74}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "VollandDB", "..\VollandDB\VollandDB.csproj", "{E3492869-C502-4AC1-A5FF-5B0B711A6A74}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "VollandDBTests", "..\VollandDBTests\VollandDBTests.csproj", "{2512B17F-D98C-4845-A1AF-05C0E3712BF2}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "VollandDBTests", "..\VollandDBTests\VollandDBTests.csproj", "{2512B17F-D98C-4845-A1AF-05C0E3712BF2}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "VollandDataManager", "..\VollandDataManager\VollandDataManager.csproj", "{6CFDF8BD-0EA7-4918-8585-521BFAA45622}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "VollandDataManager", "..\VollandDataManager\VollandDataManager.csproj", "{6CFDF8BD-0EA7-4918-8585-521BFAA45622}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "VollandDataManagerTests", "..\VollandDataManagerTests\VollandDataManagerTests.csproj", "{DFE76FB2-E2CD-4898-9832-6FE417DB30D4}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "VollandGUI", "..\VollandGUI\VollandGUI.csproj", "{1F8CF18C-4646-4CDC-B6A1-B1F34AC81982}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -39,6 +43,14 @@ Global
 		{6CFDF8BD-0EA7-4918-8585-521BFAA45622}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{6CFDF8BD-0EA7-4918-8585-521BFAA45622}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{6CFDF8BD-0EA7-4918-8585-521BFAA45622}.Release|Any CPU.Build.0 = Release|Any CPU
+		{DFE76FB2-E2CD-4898-9832-6FE417DB30D4}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{DFE76FB2-E2CD-4898-9832-6FE417DB30D4}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{DFE76FB2-E2CD-4898-9832-6FE417DB30D4}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{DFE76FB2-E2CD-4898-9832-6FE417DB30D4}.Release|Any CPU.Build.0 = Release|Any CPU
+		{1F8CF18C-4646-4CDC-B6A1-B1F34AC81982}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{1F8CF18C-4646-4CDC-B6A1-B1F34AC81982}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{1F8CF18C-4646-4CDC-B6A1-B1F34AC81982}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{1F8CF18C-4646-4CDC-B6A1-B1F34AC81982}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

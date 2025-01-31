@@ -59,11 +59,6 @@ namespace VollandAPI.Helpers
             return JsonSerializer.Serialize(me);
         }
 
-        internal static Request_Package<TRequest> Package<TRequest>(this TRequest me) where TRequest : Request
-        {
-            return new Request_Package<TRequest>(me);
-        }
-
         /// <summary>
         /// Converts a string to the enum with matching description tag
         /// </summary>
@@ -97,6 +92,23 @@ namespace VollandAPI.Helpers
                 }
             }
             return null;
+        }
+
+        /// <summary>
+        /// Returns a formatted string showing the earliest and latest dates in a list of datetimes
+        /// </summary>
+        /// <param name="me"></param>
+        /// <returns></returns>
+        internal static string? DateRangeString(this List<DateTime> me)
+        {
+            if (me.Count == 0)
+                return null;
+
+            if (me.Count == 1)
+                return me.Single().ToString("yyyy-MM-dd");
+
+            return $"{me.Min().ToString("yyyy-MM-dd")} to {me.Max().ToString("yyyy-MM-dd")}";
+
         }
 
 

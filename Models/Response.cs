@@ -22,6 +22,7 @@ namespace VollandAPI
 
     public class Response
     {
+
         public string? request_type { get; set; }
         public string? ticker { get; set; }
     }
@@ -105,7 +106,7 @@ namespace VollandAPI
             {
                 return new double[] { reader.GetDouble() };
             }
-            else if (reader.TokenType == JsonTokenType.StartArray) 
+            else if (reader.TokenType == JsonTokenType.StartArray)
             {
                 List<double> ret = new List<double>();
 
