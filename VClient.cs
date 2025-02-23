@@ -13,12 +13,13 @@ namespace VollandAPI
 {
     public class VClientSettings
     {
-        public int HttpClientTimeoutSeconds { get; set; } = 15;
+        public int HttpClientTimeoutSeconds { get; set; } = 60;
         internal TimeSpan _httpClientTimeout => new TimeSpan(0, 0, HttpClientTimeoutSeconds);
 
         public int ApiRequestsPerSecond { get; set; } = 2;
         internal double _apiRequestsPerSecond => Convert.ToDouble(ApiRequestsPerSecond);
 
+        public int ApiRequestsPerTransmission { get; set; } = 20;
     }
 
     public class VClient
@@ -188,15 +189,16 @@ namespace VollandAPI
             // Lock for concurrency
             lock (PendingRequests)
             {
-                // Add matching requests to the package
-                PendingRequests.ForEach(request =>
+                // Pull a batch of matching requests
+                var requests = PendingRequests.Where(r => r is TRequest).Cast<TRequest>().Take(Settings.ApiRequestsPerTransmission).ToList();
+
+                // Add matching requests to the package and remove from pending queue
+                requests.ForEach(request =>
                 {
-                    if (request is TRequest tr)
-                        requestPackage.AddRequest(tr);
+                    requestPackage.AddRequest(request);
+                    PendingRequests.Remove(request);
                 });
 
-                // Remove added requests from the pending queue
-                PendingRequests.RemoveAll(request => request is TRequest tr);
             }
 
             // Send the request package
@@ -294,54 +296,66 @@ namespace VollandAPI
                         // Go through the results array
                         for (int i = 0; i < responseGroup?.Count; i++)
                         {
-                            // Deserialize each node into a base Response object
-                            var responseNode = responseGroup[i];
-                            Response? response = JsonSerializer.Deserialize<Response>(responseNode);
-
-                            if (response != null && response.request_type != null)
+                            try
                             {
-                                // Get the specific request type from the Response object
-                                Request_Type requestType = Enum.Parse<Request_Type>(response.request_type);
 
-                                // Process the response based on the specific request type
-                                switch (requestType)
+                                // Deserialize each node into a base Response object
+                                var responseNode = responseGroup[i];
+                                Response? response = JsonSerializer.Deserialize<Response>(responseNode);
+
+                                if (response != null && response.request_type != null)
                                 {
+                                    // Get the specific request type from the Response object
+                                    Request_Type requestType = Enum.Parse<Request_Type>(response.request_type);
 
-                                    //
-                                    // Each Response object (node) is deserialized into its appropriate Result object, and then assigned to the original request assuming a 1:1 ordering
-                                    //
+                                    // Process the response based on the specific request type
+                                    switch (requestType)
+                                    {
 
-                                    case Request_Type.exposure_request:
-                                        {
-                                            var result = ProcessResponse<Exposure_Response, Exposure_Result>(responseNode.Deserialize<Exposure_Response>());
-                                            (requestPackage._requests[i] as Exposure_Request)?.SetResult(result);
-                                        }
-                                        break;
-                                    case Request_Type.trend_request:
-                                        {
-                                            var result = ProcessResponse<Trend_Response, Trend_Result>(responseNode.Deserialize<Trend_Response>());
-                                            (requestPackage._requests[i] as Trend_Request)?.SetResult(result);
-                                        }
-                                        break;
-                                    case Request_Type.paradigm_request:
-                                        {
-                                            var result = ProcessResponse<Paradigm_Response, Paradigm_Result>(responseNode.Deserialize<Paradigm_Response>());
-                                            (requestPackage._requests[i] as Paradigm_Request)?.SetResult(result);
-                                        }
-                                        break;
-                                    case Request_Type.zerodte_request:
-                                        {
-                                            var result = ProcessResponse<ZeroDTE_Response, ZeroDTE_Result>(responseNode.Deserialize<ZeroDTE_Response>());
-                                            (requestPackage._requests[i] as ZeroDTE_Request)?.SetResult(result);
-                                        }
-                                        break;
-                                    default:
-                                        {
-                                            // Don't throw an exception here since it could cause us to lose any good data that we received.
-                                            Debug.WriteLine($"API Return Error: Invalid Request type indicated: {requestType.ToString()}");
-                                        }
-                                        break;
+                                        //
+                                        // Each Response object (node) is deserialized into its appropriate Result object, and then assigned to the original request assuming a 1:1 ordering
+                                        //
+
+                                        case Request_Type.exposure_request:
+                                            {
+                                                var result = ProcessResponse<Exposure_Response, Exposure_Result>(responseNode.Deserialize<Exposure_Response>());
+                                                (requestPackage._requests[i] as Exposure_Request)?.SetResult(result);
+                                            }
+                                            break;
+                                        case Request_Type.trend_request:
+                                            {
+                                                var result = ProcessResponse<Trend_Response, Trend_Result>(responseNode.Deserialize<Trend_Response>());
+                                                (requestPackage._requests[i] as Trend_Request)?.SetResult(result);
+                                            }
+                                            break;
+                                        case Request_Type.paradigm_request:
+                                            {
+                                                var result = ProcessResponse<Paradigm_Response, Paradigm_Result>(responseNode.Deserialize<Paradigm_Response>());
+                                                (requestPackage._requests[i] as Paradigm_Request)?.SetResult(result);
+                                            }
+                                            break;
+                                        case Request_Type.zerodte_request:
+                                            {
+                                                var result = ProcessResponse<ZeroDTE_Response, ZeroDTE_Result>(responseNode.Deserialize<ZeroDTE_Response>());
+                                                (requestPackage._requests[i] as ZeroDTE_Request)?.SetResult(result);
+                                            }
+                                            break;
+                                        default:
+                                            {
+                                                // Don't throw an exception here since it could cause us to lose any good data that we received.
+                                                Debug.WriteLine($"API Return Error: Invalid Request type indicated: {requestType.ToString()}");
+                                            }
+                                            break;
+                                    }
                                 }
+
+
+                            }
+                            catch (Exception ex)
+                            {
+                                Debug.WriteLine($"*** API Processing Error: {ex.Message}");
+                                Debug.WriteLine($"JSON: {responseGroup[i]?.ToJsonString()}");
+                                continue;
                             }
                         }
                     }
@@ -414,6 +428,9 @@ namespace VollandAPI
 
         #region Public Request Methods
 
+        //
+        // Exposure Requests
+        //
 
         public async Task<Exposure_Result?> RequestExposureAsync(string ticker, Kind kind, Greek greek, DateTime expiration)
         {
@@ -433,6 +450,10 @@ namespace VollandAPI
             return await request.Wait();
         }
 
+        //
+        // Trend Requests
+        //
+
         public async Task<Trend_Result?> RequestTrendAsync(string ticker, Greek greek)
         {
             var request = new Trend_Request(ticker, greek);
@@ -445,6 +466,10 @@ namespace VollandAPI
             return await request.Wait();
         }
 
+        //
+        // Zero DTE Statistics Requests
+        //
+
         public async Task<ZeroDTE_Result?> RequestZeroDTEAsync(string ticker)
         {
             var request = new ZeroDTE_Request(ticker);
@@ -456,6 +481,10 @@ namespace VollandAPI
             EnqueueRequest(request);
             return await request.Wait();
         }
+
+        //
+        // Zero DTE Paradigm Requests
+        //
 
         public async Task<Paradigm_Result?> RequestParadigmAsync(string ticker)
         {

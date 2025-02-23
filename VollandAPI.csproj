@@ -6,4 +6,14 @@
     <Nullable>enable</Nullable>
   </PropertyGroup>
 
+  <ItemGroup>
+    <PackageReference Include="System.Text.Json" Version="8.0.5" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Reference Include="OptionMath">
+      <HintPath>..\OptionMath\bin\Release\net6.0\OptionMath.dll</HintPath>
+    </Reference>
+  </ItemGroup>
+
 </Project>

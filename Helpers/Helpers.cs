@@ -33,19 +33,27 @@ namespace VollandAPI.Helpers
 
         internal static List<Exposure_Point> ToExposurePoints(this Exposure_Data? me)
         {
-            if (me != null && me.strikes != null && me.exposures != null)
+            if (me != null)
             {
-                if (me.strikes.Length != me.exposures.Length)
+                if ((me.strikes?.Length ?? 0) != (me.exposures?.Length ?? 0))
                     throw new Exception("API ERROR: Exposure arrays are not equal lengths");
 
                 var ret = new List<Exposure_Point>();
 
-                for (int i = 0; i < me.strikes.Length; i++)
+                if ((me.strikes?.Length ?? 0) == 0)
                 {
-                    var strike = double.Parse(me.strikes[i]);
-                    var exposure = me.exposures[i];
+                    // We've received an empty data array, the expiry doesn't exist in Volland
+                    ret.Add(new Exposure_Point(0, 0));
+                }
+                else
+                {
+                    for (int i = 0; i < me.strikes?.Length; i++)
+                    {
+                        var strike = double.Parse(me.strikes[i]);
+                        var exposure = me.exposures[i];
 
-                    ret.Add(new Exposure_Point(strike, exposure));
+                        ret.Add(new Exposure_Point(strike, exposure));
+                    }
                 }
 
                 return ret;
@@ -58,6 +66,7 @@ namespace VollandAPI.Helpers
         {
             return JsonSerializer.Serialize(me);
         }
+
 
         /// <summary>
         /// Converts a string to the enum with matching description tag
@@ -139,13 +148,7 @@ namespace VollandAPI.Helpers
                 me.data.currentPrice == null)
                 throw new NullReferenceException("CONVERTER ERROR: Exposure_Response contained null fields");
 
-            return new Exposure_Result(
-                me.ticker,
-                me.greek,
-                me.kind,
-                me.expirations,
-                me.data,
-                me.data.currentPrice.Value);
+            return new Exposure_Result(me.ticker, me.greek, me.kind, me.expirations, me.data, me.data.currentPrice.Value);
         }
 
         private static Trend_Result ToResult(this Trend_Response me)

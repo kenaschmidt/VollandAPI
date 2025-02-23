@@ -154,34 +154,6 @@ namespace VollandAPI
         }
 
         /// <summary>
-        /// Adds strike/exposure values to the current item and returns a new object
-        /// </summary>
-        /// <param name="other"></param>
-        /// <returns></returns>
-        public Exposure_Result Add(Exposure_Result other)
-        {
-            var ret = new Exposure_Result(this.Ticker)
-            {
-                Greek = this.Greek,
-                Kind = this.Kind,
-                SpotPrice = this.SpotPrice,
-                LastUpdatedUTC = this.LastUpdatedUTC,
-                Expirations = this.Expirations.Union(other.Expirations).ToList(),
-            };
-
-            var strikes = this.Exposures.Select(x => x.Strike).Union(other.Exposures.Select(x => x.Strike));
-
-            foreach (var strike in strikes)
-            {
-                ret.Exposures.Add(new Exposure_Point(
-                    strike,
-                    (this.Exposures.Find(x => x.Strike == strike)?.Exposure ?? 0) + (other.Exposures.Find(x => x.Strike == strike)?.Exposure ?? 0)));
-            }
-
-            return ret;
-        }
-
-        /// <summary>
         /// Returns a new copy of the object
         /// </summary>
         /// <returns></returns>

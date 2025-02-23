@@ -9,7 +9,7 @@ using VollandAPI.Helpers;
 namespace VollandAPI
 {
     //
-    // REQEUSTS
+    // REQUESTS
     //
 
     public abstract class Request

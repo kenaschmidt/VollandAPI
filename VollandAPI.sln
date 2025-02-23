@@ -17,6 +17,8 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "VollandDataManagerTests", "
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "VollandGUI", "..\VollandGUI\VollandGUI.csproj", "{1F8CF18C-4646-4CDC-B6A1-B1F34AC81982}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Volland_Gui_2", "..\Volland_Gui_2\Volland_Gui_2.csproj", "{E63D21BE-E5F5-4F56-8726-82C84CE28BF0}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -51,6 +53,10 @@ Global
 		{1F8CF18C-4646-4CDC-B6A1-B1F34AC81982}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{1F8CF18C-4646-4CDC-B6A1-B1F34AC81982}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{1F8CF18C-4646-4CDC-B6A1-B1F34AC81982}.Release|Any CPU.Build.0 = Release|Any CPU
+		{E63D21BE-E5F5-4F56-8726-82C84CE28BF0}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{E63D21BE-E5F5-4F56-8726-82C84CE28BF0}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{E63D21BE-E5F5-4F56-8726-82C84CE28BF0}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{E63D21BE-E5F5-4F56-8726-82C84CE28BF0}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
